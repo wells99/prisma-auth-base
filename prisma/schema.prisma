@@ -1,0 +1,35 @@
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  user_id            Int      @id @default(autoincrement())
+  user_uuid          String   @unique @default(uuid())
+  user_email         String   @unique
+  user_password      String
+  user_name          String
+  user_role          String   @default("user")
+  user_createdAt     DateTime @default(now())
+  user_updatedAt     DateTime @updatedAt
+  user_deletedAt     DateTime?
+
+  // 🔗 Relacionamento inverso com logs
+  logs               Log[]
+}
+
+model Log {
+  log_id           Int       @id @default(autoincrement())
+  log_userId       Int?
+  log_action       String
+  log_table        String
+  log_recordId     Int?
+  log_description  String?
+  log_createdAt    DateTime  @default(now())
+  
+  user             User?     @relation(fields: [log_userId], references: [user_id])
+}
