@@ -1,10 +1,11 @@
 import bcrypt from 'bcrypt';
 import { userRepository } from '../repositories/user.repository.js';
+import { logger } from "../config/logger.js";
 
 // Defina a regra de negócio centralizada para facilitar a manutenção
 const MIN_PASSWORD_LENGTH = 10;
 // Defina o número de rounds para o bcrypt. O valor '12' é um bom padrão
-const BCRYPT_SALT_ROUNDS = 12; 
+const BCRYPT_SALT_ROUNDS = 12;
 
 // A função abaixo retorna true APENAS se tiver pelo menos DUAS letra E pelo menos UMA maiúscula.
 function validatePasswordCharacterRules(password) {
@@ -61,7 +62,8 @@ export const userService = {
             user_name,
             user_role: user_role || 'user',
         });
-
+        // ✅ Log da criação de usuário
+        await logger.db(newUser.user_id, "CREATE", "User", userData.user_id, "Usuário registrado");
         return sanitizeUser(newUser);
     },
 
@@ -97,9 +99,9 @@ export const userService = {
         // Criptografar nova senha, se enviada
         if (updateUserData.user_password) {
             const newPassword = updateUserData.user_password;
-            
+
             // AQUI ESTÁ O AJUSTE E A CORREÇÃO DE VARIÁVEL
-            
+
             // VALIDAÇÃO DO TAMANHO DA SENHA (Lógica de Negócio)
             if (newPassword.length < MIN_PASSWORD_LENGTH) {
                 throw new Error(`A senha deve ter no mínimo ${MIN_PASSWORD_LENGTH} caracteres.`);
@@ -117,8 +119,10 @@ export const userService = {
             // Criptografa a nova senha e a insere no objeto de atualização
             updateUserData.user_password = await bcrypt.hash(newPassword, BCRYPT_SALT_ROUNDS);
         }
-        
+
         const updatedUser = await userRepository.updateUser(user_uuid, updateUserData)
+        // ✅ Log da Edição do usuário
+      //  await logger.db(newUser.user_id, "CREATE", "User", userData.user_id, "Usuário Atualizado");
         return sanitizeUser(updatedUser);
     },
 

@@ -6,6 +6,8 @@ export const env = {
   port: process.env.PORT || 3333,
   databaseUrl: process.env.DATABASE_URL,
   jwtSecret: process.env.JWT_SECRET,
+  jwtRefreshSecret: process.env.JWT_REFRESH_SECRET,
+  nodeEnv: process.env.NODE_ENV || "development",
 }
 
 // Valida se alguma variável essencial está ausente

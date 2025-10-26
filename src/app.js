@@ -1,16 +1,34 @@
-import express from 'express'
-import morgan from 'morgan'
-import cors from 'cors'
+import express from "express";
+import cors from "cors";
+import morgan from "morgan";
 import router from "./routes/index.js";
+import { logger } from "./config/logger.js";
+import { limiter } from "./middlewares/ratelimit.middleware.js";
 
-const app = express()
+
+const app = express();
 
 // Middlewares globais
-app.use(cors())
-app.use(express.json())
-app.use(morgan('dev'))
+app.use(cors());
+app.use(express.json());
 
-// Rotas da API
+// Morgan + Winston (para registrar logs HTTP)
+// app.use(morgan("combined", { stream }));
+
+// Teste rápido de log manual
+logger.info("Servidor iniciado com sucesso 🚀");
+
+// Rotas
 app.use("/api", router);
 
-export default app
+// Rate Limiter
+app.use(limiter);
+
+
+// Middleware global de tratamento de erro
+app.use((err, req, res, next) => {
+  logger.error(`${err.message} - ${req.method} ${req.url}`);
+  res.status(500).json({ message: "Erro interno do servidor." });
+});
+
+export default app;
