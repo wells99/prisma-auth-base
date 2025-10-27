@@ -24,9 +24,6 @@ export const authService = {
     const newUser = await userService.createUser(userData);
     const token = generateToken(newUser.user_uuid, newUser.user_email);
 
-    // ✅ Log da criação de usuário
-    await logger.db(newUser.user_id, "CREATE", "User", newUser.user_id, "Usuário registrado");
-
     return {
       user: sanitizeUser(newUser),
       token,

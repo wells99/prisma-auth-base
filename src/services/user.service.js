@@ -63,7 +63,8 @@ export const userService = {
             user_role: user_role || 'user',
         });
         // ✅ Log da criação de usuário
-        await logger.db(newUser.user_id, "CREATE", "User", userData.user_id, "Usuário registrado");
+        await logger.db(newUser.user_id, "CREATE", "User", newUser.user_id, "Usuário registrado");
+
         return sanitizeUser(newUser);
     },
 
@@ -122,7 +123,7 @@ export const userService = {
 
         const updatedUser = await userRepository.updateUser(user_uuid, updateUserData)
         // ✅ Log da Edição do usuário
-      //  await logger.db(newUser.user_id, "CREATE", "User", userData.user_id, "Usuário Atualizado");
+        await logger.db(updatedUser.user_id, "UPDATE", "User", updatedUser.user_id, "Usuário atualizado");
         return sanitizeUser(updatedUser);
     },
 
@@ -137,6 +138,8 @@ export const userService = {
             throw new Error("Usuário não encontrado ou já deletado.");
         }
         const deletedUser = await userRepository.softDeleteUser(user_uuid);
+        // ✅ Log da deleção do usuário
+        await logger.db(deletedUser.user_id, "DELETE", "User", deletedUser.user_id, "Usuário excluído");
         return sanitizeUser(deletedUser);
     },
 };
