@@ -3,7 +3,7 @@ import cors from "cors";
 // import morgan from "morgan";
 import router from "./routes/index.js";
 import { logger } from "./config/logger.js";
-import { limiter } from "./middlewares/ratelimit.middleware.js";
+import { globalLimiter } from "./middlewares/rateLimit.middleware.js";
 import cookieParser from 'cookie-parser';
 
 
@@ -24,7 +24,7 @@ logger.info("Servidor iniciado com sucesso 🚀");
 app.use("/api", router);
 
 // Rate Limiter
-app.use(limiter);
+app.use(globalLimiter);
 
 
 // Middleware global de tratamento de erro

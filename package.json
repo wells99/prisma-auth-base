@@ -17,6 +17,9 @@
   "author": "",
   "license": "ISC",
   "type": "module", 
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "bugs": {
     "url": "https://github.com/wells99/prisma-auth-base/issues"
   },
