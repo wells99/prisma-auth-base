@@ -1,5 +1,5 @@
 DATABASE_URL="mysql://usuario:senha@localhost:3306/nome_do_banco"
 JWT_SECRET="sua_chave_secreta_aqui"
 PORT=numero
-NODE_ENV="development"
+NODE_ENV="development" //ou production se estiver em produção
 JWT_REFRESH_SECRET="sua_chave_mais_secreta_que_a_outra_aqui"

@@ -39,7 +39,7 @@ export const authController = {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === "production",
                 sameSite: "Lax",
-                maxAge: 4 * 60 * 60 * 1000, // 4h
+                maxAge: 60 * 60 * 1000, // 1h
             });
 
             res.cookie("refreshToken", refreshToken, {
