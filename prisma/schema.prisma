@@ -20,6 +20,9 @@ model User {
 
   // 🔗 Relacionamento inverso com logs
   logs               Log[]
+  // 🔗 Relacionamento inverso com Refresh Token
+  refreshTokens      RefreshToken[]   
+
 }
 
 model Log {
@@ -32,4 +35,16 @@ model Log {
   log_createdAt    DateTime  @default(now())
   
   user             User?     @relation(fields: [log_userId], references: [user_id])
+}
+
+
+model RefreshToken {
+  token_id        Int       @id @default(autoincrement())
+  token_userId    Int
+  token_value     String    @unique
+  token_expiresAt DateTime
+  token_createdAt DateTime  @default(now())
+
+  // 🔗 Relacionamento com User
+  user            User      @relation(fields: [token_userId], references: [user_id], onDelete: Cascade)
 }

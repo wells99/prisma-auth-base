@@ -1,6 +1,5 @@
 import { authService } from "../services/auth.service.js";
 import { jwtUtil } from "../utils/jwt.js";
-import { env } from "../config/env.js";
 
 export const authController = {
     /**
@@ -39,14 +38,14 @@ export const authController = {
             res.cookie("accessToken", result.token, {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === "production",
-                sameSite: "Strict",
+                sameSite: "Lax",
                 maxAge: 4 * 60 * 60 * 1000, // 4h
             });
 
             res.cookie("refreshToken", refreshToken, {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === "production",
-                sameSite: "Strict",
+                sameSite: "Lax",
                 maxAge: 7 * 24 * 60 * 60 * 1000, // 7 dias
             });
 
@@ -77,9 +76,9 @@ export const authController = {
             res.cookie("accessToken", newAccessToken, {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === "production",
-                sameSite: "Strict",
+                sameSite: "Lax",
                 maxAge: 4 * 60 * 60 * 1000,
-            });
+            }); 
 
             return res.status(200).json({ message: "Token renovado com sucesso." });
         } catch (error) {

@@ -1,9 +1,10 @@
 import express from "express";
 import cors from "cors";
-import morgan from "morgan";
+// import morgan from "morgan";
 import router from "./routes/index.js";
 import { logger } from "./config/logger.js";
 import { limiter } from "./middlewares/ratelimit.middleware.js";
+import cookieParser from 'cookie-parser';
 
 
 const app = express();
@@ -11,6 +12,7 @@ const app = express();
 // Middlewares globais
 app.use(cors());
 app.use(express.json());
+app.use(cookieParser()); // Ler cookies nas requisições
 
 // Morgan + Winston (para registrar logs HTTP)
 // app.use(morgan("combined", { stream }));
