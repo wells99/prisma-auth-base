@@ -3,28 +3,22 @@ import jwt from "jsonwebtoken";
 import { refreshTokenRepository } from "../repositories/refreshToken.repository.js";
 import { env } from "../config/env.js";
 
-const MAX_SESSION_MS = 4 * 60 * 60 * 1000; // 4 horas
-
 export const refreshTokenService = {
-
-  // Gera novo refresh token (agora com createdAt)
+  // Gera novo refresh token com validade de 4 horas
   async generate(userId) {
     const token = crypto.randomBytes(40).toString("hex");
-
-    const now = new Date();
-    const expiresAt = new Date(Date.now() + 7 * 86400000); // 7 dias
+    const expiresAt = new Date(Date.now() + 4 * 60 * 60 * 1000); // 4 horas
 
     await refreshTokenRepository.create({
       token,
       userId,
-      createdAt: now,       // <-- ADICIONADO
       expiresAt,
     });
 
     return token;
   },
 
-  // Valida o refresh token + limita a 4h totais
+  // Valida o refresh token (usa apenas token_expiresAt)
   async verify(token) {
     const storedToken = await refreshTokenRepository.findByToken(token);
 
@@ -32,24 +26,16 @@ export const refreshTokenService = {
       throw new Error("Token inválido");
     }
 
-    // Expiração normal (7 dias)
-    if (storedToken.token_expiresAt < new Date()) {
+    // Expiração da sessão (máximo definido pelo token_expiresAt)
+    if (new Date(storedToken.token_expiresAt) < new Date()) {
       await refreshTokenRepository.delete(token);
       throw new Error("Token expirado");
-    }
-
-    // ❗ Expiração da sessão (no máximo 4h desde o primeiro login)
-    const sessionAge = Date.now() - new Date(storedToken.token_createdAt).getTime();
-
-    if (sessionAge > MAX_SESSION_MS) {
-      await refreshTokenRepository.delete(token);
-      throw new Error("Sessão expirada (limite de 4h)");
     }
 
     return storedToken;
   },
 
-  // Gera novo access e ROTACIONA refresh
+  // Gera novo access e ROTACIONA refresh, mantendo o mesmo expiresAt do token antigo
   async renewAccessToken(oldRefreshToken) {
     const stored = await this.verify(oldRefreshToken);
     const user = stored.user;
@@ -58,15 +44,13 @@ export const refreshTokenService = {
     // Deleta token antigo
     await refreshTokenRepository.delete(oldRefreshToken);
 
-    // 🔥 IMPORTANTE:
-    // Novo refresh token precisa manter o MESMO createdAt original para respeitar o limite de 4h
+    // Novo refresh token (mantém a validade original para limitar a sessão)
     const newRefresh = crypto.randomBytes(40).toString("hex");
 
     await refreshTokenRepository.create({
       token: newRefresh,
       userId: user.user_id,
-      createdAt: stored.token_createdAt,   // <-- MANTÉM A ORIGEM DO LOGIN
-      expiresAt: new Date(Date.now() + 7 * 86400000),
+      expiresAt: new Date(stored.token_expiresAt), // mantém o mesmo prazo
     });
 
     const newAccessToken = jwt.sign(
@@ -76,7 +60,7 @@ export const refreshTokenService = {
         role: user.user_role,
       },
       env.jwtSecret,
-      { expiresIn: "1m" } // seu objetivo: accessToken curtíssimo
+      { expiresIn: "1m" } // accessToken curto
     );
 
     return {
