@@ -1,8 +1,8 @@
 import jwt from "jsonwebtoken";
 import { env } from "../config/env.js";
 
-const JWT_EXPIRATION = "4h";
-const REFRESH_EXPIRATION = "7d";
+const JWT_EXPIRATION = "1m";
+const REFRESH_EXPIRATION = "4h";
 
 export const jwtUtil = {
   generateAccessToken(payload) {

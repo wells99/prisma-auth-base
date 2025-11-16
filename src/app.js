@@ -13,8 +13,6 @@ app.use(cors());
 app.use(express.json());
 app.use(cookieParser()); // Ler cookies nas requisições
 
-
-
 // Teste rápido de log manual
 logger.info("Servidor iniciado com sucesso 🚀");
 
