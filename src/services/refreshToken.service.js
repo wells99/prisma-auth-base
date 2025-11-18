@@ -2,13 +2,13 @@ import crypto from "crypto";
 import jwt from "jsonwebtoken";
 import { refreshTokenRepository } from "../repositories/refreshToken.repository.js";
 import { env } from "../config/env.js";
-
+import { logger } from "./config/logger.js";
 export const refreshTokenService = {
   // Gera novo refresh token com validade de 4 horas
   async generate(userId) {
     const token = crypto.randomBytes(40).toString("hex");
     const expiresAt = new Date(Date.now() + 4 * 60 * 60 * 1000); // 4 horas
-
+  logger.info("Novo refresh expira em: -> ",expiresAt);
     await refreshTokenRepository.create({
       token,
       userId,
@@ -17,7 +17,6 @@ export const refreshTokenService = {
 
     return token;
   },
-
   // Valida o refresh token (usa apenas token_expiresAt)
   async verify(token) {
     console.log("Verificando token: ", token)
@@ -26,7 +25,6 @@ export const refreshTokenService = {
     if (!storedToken) {
       throw new Error("Token inválido");
     }
-
     // Expiração da sessão (máximo definido pelo token_expiresAt)
     if (new Date(storedToken.token_expiresAt) < new Date()) {
       console.log("Token expirado: ", storedToken)
