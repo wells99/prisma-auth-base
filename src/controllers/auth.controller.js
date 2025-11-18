@@ -1,6 +1,7 @@
 import { authService } from "../services/auth.service.js";
 import { refreshTokenService } from "../services/refreshToken.service.js";
 import { jwtUtil } from "../utils/jwt.js";
+import { logger } from "./config/logger.js";
 
 export const authController = {
     /**
@@ -71,7 +72,8 @@ export const authController = {
     async refresh(req, res) {
         try {
             const { refreshToken } = req.cookies;
-            console.log("EM  refresh -> ",refreshToken)
+          
+            logger.info("EM  refresh -> ",refreshToken);
             if (!refreshToken) {
                 return res.status(401).json({ message: "Refresh token não encontrado." });
             }
@@ -84,13 +86,15 @@ export const authController = {
             
             const newRefreshToken = await refreshTokenService.generate(user.user_id);
             console.log("EM  refresh -> ",newRefreshToken)
+             logger.info("Novo refresh criado -> ",refreshToken);
 
             // 3️⃣ Gera novo access token
             const newAccessToken = jwtUtil.generateAccessToken({
                 uuid: user.user_uuid
             });
 
-            console.log("RefreshToken--rotacionado: ",newAccessToken)
+            console.log("newAccessToken--rotacionado: ",newAccessToken)
+              logger.info("Novo newAccessToken criado -> ",newAccessToken);
             // 4️⃣ Atualiza cookies
             res.cookie("accessToken", newAccessToken, {
                 httpOnly: true,
