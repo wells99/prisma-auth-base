@@ -1,7 +1,7 @@
 import { authService } from "../services/auth.service.js";
 import { refreshTokenService } from "../services/refreshToken.service.js";
 import { jwtUtil } from "../utils/jwt.js";
-import { logger } from "./config/logger.js";
+import { logger } from "../config/logger.js";
 
 export const authController = {
     /**
