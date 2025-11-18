@@ -31,6 +31,7 @@ export const authController = {
             // 1️⃣ Autentica usuário
             const result = await authService.login(user_email, user_password);
             const user = result.user;
+            console.log(result)
 
             // 2️⃣ Gera Access Token JWT (curto)
             const accessToken = jwtUtil.generateAccessToken({ uuid: user.user_uuid });
@@ -70,24 +71,26 @@ export const authController = {
     async refresh(req, res) {
         try {
             const { refreshToken } = req.cookies;
-
+            console.log("EM  refresh -> ",refreshToken)
             if (!refreshToken) {
                 return res.status(401).json({ message: "Refresh token não encontrado." });
             }
-
+            
             // 1️⃣ Verifica refresh token no banco
             const user = await refreshTokenService.verify(refreshToken);
-
+            
             // 2️⃣ Rota de segurança:
             //    Rotaciona → apaga o refresh antigo e cria um novo
-            await refreshTokenService.revokeUserTokens(user.user_id);
+            
             const newRefreshToken = await refreshTokenService.generate(user.user_id);
+            console.log("EM  refresh -> ",newRefreshToken)
 
             // 3️⃣ Gera novo access token
             const newAccessToken = jwtUtil.generateAccessToken({
                 uuid: user.user_uuid
             });
 
+            console.log("RefreshToken--rotacionado: ",newAccessToken)
             // 4️⃣ Atualiza cookies
             res.cookie("accessToken", newAccessToken, {
                 httpOnly: true,

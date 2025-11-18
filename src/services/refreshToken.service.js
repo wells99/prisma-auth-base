@@ -20,15 +20,16 @@ export const refreshTokenService = {
 
   // Valida o refresh token (usa apenas token_expiresAt)
   async verify(token) {
+    console.log("Verificando token: ", token)
     const storedToken = await refreshTokenRepository.findByToken(token);
-
+    console.log("Token encontrado: ", storedToken)
     if (!storedToken) {
       throw new Error("Token inválido");
     }
 
     // Expiração da sessão (máximo definido pelo token_expiresAt)
     if (new Date(storedToken.token_expiresAt) < new Date()) {
-      await refreshTokenRepository.delete(token);
+      console.log("Token expirado: ", storedToken)
       throw new Error("Token expirado");
     }
 
@@ -42,8 +43,9 @@ export const refreshTokenService = {
     if (!user) throw new Error("Usuário não encontrado");
 
     // Deleta token antigo
-    await refreshTokenRepository.delete(oldRefreshToken);
+    console.log("Usuario encontrado: proximo passo deletar o token")
 
+    console.log("Criando novo refreshToken mantendo a validade ")
     // Novo refresh token (mantém a validade original para limitar a sessão)
     const newRefresh = crypto.randomBytes(40).toString("hex");
 
@@ -70,6 +72,7 @@ export const refreshTokenService = {
   },
 
   async revokeUserTokens(userId) {
+    console.log("função revokeUserTokens: ", userId)
     await refreshTokenRepository.deleteByUserId(userId);
   },
 };
